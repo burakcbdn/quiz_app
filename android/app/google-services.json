@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "206411199334",
+    "project_id": "cet301-quiz",
+    "storage_bucket": "cet301-quiz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206411199334:android:7d082391a0d23cb6dc8ea7",
+        "android_client_info": {
+          "package_name": "com.cet301.quiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206411199334-p2q8r8dva10p9fq2nrfla0kb1qa2krnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cet301.quiz",
+            "certificate_hash": "8f7fc929f7e4abbc0701ee666ec026691e9f2e57"
+          }
+        },
+        {
+          "client_id": "206411199334-tl00tq0qiunamn2laeepeh9864h83p48.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl87AI4neuCa4YSq1i1tv8SchTsuTO_qY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206411199334-tl00tq0qiunamn2laeepeh9864h83p48.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
