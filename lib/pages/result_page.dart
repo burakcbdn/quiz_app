@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:quiz_app/models/question.dart';
 import 'package:quiz_app/networking/firebase_operations.dart';
 
-import 'categories_page.dart';
+import 'home_page.dart';
 
 
 class ResultPage extends StatefulWidget {
@@ -105,7 +105,7 @@ class _ResultPageState extends State<ResultPage> {
             Expanded(child: SizedBox(),),
             CupertinoButton(
               onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CategoriesPage()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
               },
               minSize: 0,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/models/category.dart';
@@ -7,16 +6,14 @@ import 'package:quiz_app/networking/firebase_operations.dart';
 import 'package:quiz_app/networking/sign_in.dart';
 import 'package:quiz_app/pages/questions_page.dart';
 
-import 'login_page.dart';
-import 'market.dart';
+class Categories extends StatefulWidget {
+  const Categories({Key key}) : super(key: key);
 
-
-class CategoriesPage extends StatefulWidget {
   @override
-  _CategoriesPageState createState() => _CategoriesPageState();
+  _CategoriesState createState() => _CategoriesState();
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
+class _CategoriesState extends State<Categories> {
   List<Category> categories;
 
   List<LinearGradient> gradients = [
@@ -38,198 +35,201 @@ class _CategoriesPageState extends State<CategoriesPage> {
         colors: [Color(0xfffd746c), Color(0xFFff9068)])
   ];
 
-
   @override
   void initState() {
-    super.initState();
-
     getCategories().then((value) {
       setState(() {
         categories = value;
       });
     });
+    super.initState();
 
+    stream = FirebaseFirestore.instance
+        .collection("users")
+        .doc(firebaseAuth.currentUser.uid)
+        .snapshots();
   }
 
-  User currentUser = FirebaseAuth.instance.currentUser;
+  var inputBorder = OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.white),
+      borderRadius: BorderRadius.circular(40));
+
+  String categoryFilter = "";
+
+  List favs = [];
+
+  Stream<DocumentSnapshot> stream;
+
+  bool showFavs = false;
 
   @override
   Widget build(BuildContext context) {
     int gradientIndex = -1;
     return Scaffold(
-
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xff0052D4), Color(0xFF4364F7)]),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 80,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Merhaba,",
-                            style: TextStyle(fontSize: 25, color: Colors.white),
-                          ),
-                          Text(
-                            "${currentUser.displayName}",
-                            style: TextStyle(
-                                fontSize: 40,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Expanded(
-                        child: SizedBox(),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          signOutGoogle().then((value) {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                          });
-                        },
-                        icon: Icon(Icons.logout, color: Colors.white,),
-                        iconSize: 30,
-                      )
-                    ],
-                  ),
-
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Kategorini seç ve soruları çözüp puanları toplamaya başla",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Center(
-                      child: Text(
-                    "Toplam puanın",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
-                  )),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  FutureBuilder(
-                    future: FirebaseFirestore.instance.collection("users").doc(currentUser.uid).get(),
-                    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-
-                      if (!snapshot.hasData) {
-                        return Container();
-                      }
-
-                      Map<String, dynamic> data = snapshot.data.data();
-
-                      int point = data["point"];
-
-                      return Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "$point/100",
-                              style: TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            CupertinoButton(
-                              onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MarketPage(points: point,)));
-                              },
-                              minSize: 0,
-                              padding: EdgeInsets.all(10),
-                              child: Container(
-                                height: 30,
-                                width: MediaQuery.of(context).size.width,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.shopping_cart_outlined, color: Colors.white,),
-                                    SizedBox(width: 10,),
-                                    Text("Puanlarını harca!", style: TextStyle(color: Colors.white),)
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            categories != null
-                ? Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.width,
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      scrollDirection: Axis.horizontal,
-                      crossAxisSpacing: 0,
-                      mainAxisSpacing: 0,
-                      childAspectRatio: 1,
-                      padding: EdgeInsets.zero,
-                      children: categories.map((e) {
-                        gradientIndex++;
-                        return CupertinoButton(
-                          onPressed: () {
-
-                            Route route = MaterialPageRoute(builder: (context) => Questions(category: e,));
-
-                            Navigator.push(context, route);
-
-                          },
-                          minSize: 0,
-                          padding: EdgeInsets.all(5),
-                          child: Material(
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Container(
-                              height: 120,
-                              width: 150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  gradient: gradients[gradientIndex]),
-                              child: Center(
-                                child: Text(
-                                  e.category,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 23),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  )
-                : Center(
-                    child: CircularProgressIndicator(),
-                  )
+        appBar: AppBar(
+          leading: IconButton(onPressed: () {
+            if (showFavs) {
+              setState(() {
+                showFavs = false;
+              });
+            } else {
+              Navigator.pop(context);
+            }
+          }, icon: Icon(Icons.chevron_left)),
+          backgroundColor: Color(0xff0052D4),
+          title: Text(showFavs ? "Favori Kategoriler" : "Kategoriler"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    showFavs = !showFavs;
+                  });
+                },
+                icon: Icon(showFavs ? Icons.favorite :Icons.favorite_border_outlined))
           ],
         ),
-      ),
-    );
+        body: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xff0052D4), Color(0xFF4364F7)]),
+            ),
+            child: Column(children: [
+              SizedBox(
+                height: 25,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                child: TextField(
+                  onChanged: (str) {
+                    setState(() {
+                      categoryFilter = str;
+                    });
+                  },
+                  
+                  
+                  style:TextStyle(color: Colors.white, fontSize:18),
+                  decoration: InputDecoration(
+                    hintText: "Ara",
+                    hintStyle: TextStyle(color: Colors.grey),
+                
+                    suffixIcon: Icon(Icons.search, color: Colors.white),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical:12),
+                    border: inputBorder,
+                    errorBorder: inputBorder,
+                    enabledBorder: inputBorder,
+                    focusedBorder: inputBorder,
+                    disabledBorder: inputBorder,
+                  ),
+                ),
+              ),
+              categories != null
+                  ? StreamBuilder(
+                      stream: stream,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Container();
+                        }
+
+                        gradientIndex = -1;
+
+                        var data = snapshot.data.data();
+
+                        var favorites = data["favorites"];
+
+                        favs = favorites;
+
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.width,
+                          child: GridView.count(
+                            crossAxisCount: 2,
+                            scrollDirection: Axis.horizontal,
+                            crossAxisSpacing: 0,
+                            mainAxisSpacing: 0,
+                            childAspectRatio: 1,
+                            padding: EdgeInsets.zero,
+                            children: categories.where((cat) {
+                              if (showFavs) {
+                                return cat.category.toLowerCase().contains(
+                                        categoryFilter.toLowerCase()) &&
+                                    favs.contains(cat.category);
+                              }
+                              return cat.category
+                                  .toLowerCase()
+                                  .contains(categoryFilter.toLowerCase());
+                            }).map((e) {
+                              gradientIndex++;
+
+                              bool isFav = favorites.contains(e.category);
+                              return CupertinoButton(
+                                key: Key(e.category),
+                                onPressed: () {
+                                  Route route = MaterialPageRoute(
+                                      builder: (context) => Questions(
+                                            category: e,
+                                          ));
+
+                                  Navigator.push(context, route);
+                                },
+                                minSize: 0,
+                                padding: EdgeInsets.all(5),
+                                child: Material(
+                                  elevation: 3,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Container(
+                                    height: 120,
+                                    width: 150,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        gradient: gradients[gradientIndex]),
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              if (isFav)  {
+                                                await removeFromFavs(e.category);
+                                              } else {
+                                                await addToFavs(e.category);
+                                              }
+                                            },
+                                            icon: Icon(Icons.favorite,
+                                                color: isFav
+                                                    ? Colors.red
+                                                    : Colors.white),
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            e.category,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 23),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      })
+                  : Center(
+                      child: CircularProgressIndicator(),
+                    )
+            ]),
+          ),
+        ));
   }
 }

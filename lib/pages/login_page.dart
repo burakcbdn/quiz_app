@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quiz_app/networking/sign_in.dart';
 
-import 'categories_page.dart';
+import 'home_page.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -54,7 +54,7 @@ class LoginPage extends StatelessWidget {
               onPressed: () {
                 signInWithGoogle().then((value){
                   if (value != null) {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CategoriesPage()));
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
                   }
                 });
               },

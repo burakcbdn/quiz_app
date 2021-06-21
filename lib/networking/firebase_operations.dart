@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quiz_app/models/category.dart';
 import 'package:quiz_app/models/question.dart';
+import 'package:quiz_app/networking/sign_in.dart';
 
 CollectionReference categoriesCollection = FirebaseFirestore.instance.collection("categories");
 
@@ -17,6 +18,44 @@ Future<List<Category>> getCategories() async {
   });
 
   return categories;
+}
+
+Future addToFavs(String category) async{
+  DocumentSnapshot docData = await FirebaseFirestore.instance.collection("users").doc(firebaseAuth.currentUser.uid).get();
+
+
+  Map<String,dynamic> data = docData.data();
+
+  List favs = data["favorites"];
+
+  if (!favs.contains(category)) {
+    favs.add(category);
+
+    data["favorites"] = favs;
+
+    await docData.reference.update({
+      "favorites": favs
+    });
+  }
+}
+
+Future removeFromFavs(String category) async{
+    DocumentSnapshot docData = await FirebaseFirestore.instance.collection("users").doc(firebaseAuth.currentUser.uid).get();
+
+
+  Map<String,dynamic> data = docData.data();
+
+  List favs = data["favorites"];
+
+  if (favs.contains(category)) {
+    favs.remove(category);
+
+    data["favorites"] = favs;
+
+    await docData.reference.update({
+      "favorites": favs
+    });
+  }
 }
 
 Future<List<Question>> getQuestions(String category) async {
